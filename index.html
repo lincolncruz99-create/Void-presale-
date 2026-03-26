@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOID Presale</title>
+
+<style>
+/* ---- BODY + BACKGROUND ---- */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: radial-gradient(circle at top, #0a0015, #000000 90%);
+    overflow-x: hidden;
+    color: white;
+    text-align: center;
+}
+
+/* Tiny purple stars */
+body::after {
+    content: '';
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, #5a00ff 1px, transparent 1px);
+    background-size: 10px 10px;
+    top: 0; left: 0;
+    pointer-events: none;
+}
+
+/* ---- CONTAINER ---- */
+.container {
+    padding: 40px 20px;
+}
+
+/* ---- VOID TITLE ---- */
+h1 {
+    font-size: 64px;
+    font-weight: bold;
+    position: relative;
+    color: white;
+    animation: glitch 1s infinite;
+}
+
+@keyframes glitch {
+    0% { text-shadow: 2px 0 #6a00ff, -2px 0 #3b0a6b; }
+    20% { text-shadow: -2px -2px #6a00ff, 2px 2px #3b0a6b; }
+    40% { text-shadow: 2px 2px #3b0a6b, -2px -2px #6a00ff; }
+    60% { text-shadow: -2px 2px #6a00ff, 2px -2px #3b0a6b; }
+    80% { text-shadow: 2px -2px #3b0a6b, -2px 2px #6a00ff; }
+    100% { text-shadow: 2px 0 #6a00ff, -2px 0 #3b0a6b; }
+}
+
+/* ---- VOID CIRCLE ---- */
+.void {
+    width: 200px;
+    height: 200px;
+    margin: 30px auto;
+    border-radius: 50%;
+    background: radial-gradient(circle, #000 30%, #3b0a6b 60%, #6a00ff 90%);
+    box-shadow: 0 0 80px #6a00ff, 0 0 40px #3b0a6b inset;
+}
+
+/* ---- CARD STYLING ---- */
+.card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 400px;
+    margin: 20px auto;
+    text-align: left;
+}
+
+.card h2, .card h3 {
+    margin-top: 0;
+}
+
+/* ---- BUTTON ---- */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #6a00ff;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+/* ---- TIMER ---- */
+.timer {
+    font-size: 28px;
+    margin: 15px 0;
+}
+
+/* ---- SMALL TEXT ---- */
+.small {
+    opacity: 0.7;
+    font-size: 14px;
+}
+
+/* ---- FEED ---- */
+.feed {
+    text-align: left;
+    max-width: 400px;
+    margin: 15px auto;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.feed div { margin-bottom: 6px; }
+
+/* ---- X BUTTON ---- */
+#x-btn {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    font-size: 14px;
+    background: #3b0a6b;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    color: white;
+    z-index: 1000;
+}
+</style>
+</head>
+
+<body>
+
+<!-- Tiny X button -->
+<a href="https://x.com/YOUR_HANDLE" id="x-btn" target="_blank">X</a>
+
+<div class="container">
+
+    <!-- VOID TITLE -->
+    <h1>VOID</h1>
+
+    <!-- VOID CIRCLE -->
+    <div class="void"></div>
+
+    <!-- Description -->
+    <p>You were never early.<br>
+       You were never late.<br>
+       You were always exit liquidity.</p>
+
+    <!-- PRESALE CARD -->
+    <div class="card">
+        <h2>Presale Live</h2>
+        <div class="timer" id="countdown"></div>
+
+        <p><strong>Send SOL to enter:</strong></p>
+        <p id="wallet"></p>
+        <a class="btn" onclick="copyWallet()">Copy Address</a>
+
+        <p class="small">
+            Minimum: 1.65 SOL<br>
+            Maximum: 20 SOL<br>
+            Launch after countdown ends
+        </p>
+    </div>
+
+    <!-- TOKEN INFO -->
+    <div class="card">
+        <h3>Token Info</h3>
+        <p>Price: 0.5 SOL per token<br>
+           Total Supply: 10,000 Tokens<br>
+           Allocation: 50% Presale, 30% Liquidity, 20% Team</p>
+    </div>
+
+    <!-- TRACKING -->
+    <div class="card">
+        <h3>Tracking</h3>
+        <p>Wallets Entered: <span id="buyers">0</span></p>
+        <p>Total Raised: <span id="raised">0</span> SOL</p>
+        <div class="feed" id="feed"></div>
+    </div>
+
+</div>
+
+<script>
+// ----- WALLET -----
+const WALLET_ADDRESS = "EjV7pQ7oHzDep1D2WhgZ8KJpuHxahtTMKHnwYaa9L6T6";
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("wallet").innerText = WALLET_ADDRESS;
+});
+
+// ----- COPY FUNCTION -----
+function copyWallet() {
+    navigator.clipboard.writeText(WALLET_ADDRESS);
+    alert("Wallet copied");
+}
+
+// ----- COUNTDOWN (3 DAYS) -----
+const endTime = new Date().getTime() + (3*24*60*60*1000);
+
+const timer = setInterval(function() {
+    const now = new Date().getTime();
+    const distance = endTime - now;
+
+    const days = Math.floor(distance / (1000*60*60*24));
+    const hours = Math.floor((distance % (1000*60*60*24)) / (1000*60*60));
+    const minutes = Math.floor((distance % (1000*60*60)) / (1000*60));
+    const seconds = Math.floor((distance % (1000*60)) / 1000);
+
+    document.getElementById("countdown").innerHTML =
+        days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+
+    if(distance < 0){
+        clearInterval(timer);
+        document.getElementById("countdown").innerHTML = "LAUNCHED";
+    }
+}, 1000);
+
+// ----- TRACKING FAKE ENTRIES -----
+let buyers = 0;
+let raised = 0;
+
+function randomWallet() {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz123456789";
+    let result = "";
+    for(let i=0;i<32;i++){ result += chars.charAt(Math.floor(Math.random()*chars.length)); }
+    return result;
+}
+
+function randomAmount() {
+    return (Math.random()*(20-1.65)+1.65).toFixed(2);
+}
+
+function addEntry() {
+    const amount = parseFloat(randomAmount());
+    buyers++;
+    raised += amount;
+
+    document.getElementById("buyers").innerText = buyers;
+    document.getElementById("raised").innerText = raised.toFixed(2);
+
+    const feed = document.getElementById("feed");
+    const entry = document.createElement("div");
+    entry.innerText = `${randomWallet()} entered ${amount} SOL`;
+    feed.prepend(entry);
+    if(feed.children.length>8){ feed.removeChild(feed.lastChild); }
+}
+
+function scheduleEntry() {
+    const delay = Math.random()*15000 + 10000; // slow random
+    setTimeout(() => { addEntry(); scheduleEntry(); }, delay);
+}
+scheduleEntry();
+</script>
+
+</body>
+</html>
